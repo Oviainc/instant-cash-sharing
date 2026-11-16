@@ -33,6 +33,38 @@ lightest lawful shape:
 - **One claim only.** Codes are stored hashed, shown once at
   creation. Transfers expire after 72 hours.
 
+
+## How "instant" actually works
+
+Instant is not a slogan — it is three mechanisms, and the design
+carries all three:
+
+1. **Pre-funded payout float.** The operator keeps funds pre-positioned
+   with the payout network. When a transfer is released, the payout
+   side pays from that float immediately instead of waiting for the
+   sender's money to settle. This is how every instant service really
+   works: speed is bought with float.
+2. **Instant sender payment.** The sender pays by card (authorized in
+   seconds) or instant bank payment where available. Slow payment
+   rails make slow transfers — the send page offers instant rails
+   first.
+3. **Automated screening in seconds.** Identity verification
+   reference, sanctions and fraud checks run automatically at
+   release. A clean transfer releases at once; only a screening hit
+   waits for human review.
+
+**Result, by payout method (design targets, stated as targets):**
+- **Wallet:** usable the moment the claim completes — seconds.
+- **Cash pickup:** payable at the pickup point within minutes of the
+  send; the recipient walks in with the code and ID and walks out
+  with cash.
+
+**Where instant honestly slows down:** a first-ever sender's
+one-time identity verification (minutes, once), a screening hit that
+needs human review, and a pickup point that is closed for the night.
+None of these is hidden from the sender — the send page shows the
+expected availability before payment.
+
 ## What is in the prototype
 
 - `cashlink/core.py` — the transfer state machine
