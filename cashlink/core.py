@@ -10,9 +10,14 @@ the receiver's ID against the transfer. A design promising "no ID,
 ever, anywhere" cannot be run by any regulated provider — so this core
 builds the lightest lawful shape instead:
 
-- sender side: handled by the operator/provider (outside this core)
+- sender side: GUEST SEND — no account, no password, no login; the
+  sender's identity is verified once per send by the operator (an ID
+  verification reference, never raw ID data in this core). No-login is
+  a UX choice; no-ID would be illegal in every corridor.
 - recipient side: link + code only; ID checked once, at payout
-- per-transfer cap under CAD 1,000, enforced in code
+- sender identity is verified at EVERY amount in this design — the
+  per-transfer cap is a fraud/risk product limit, not a threshold
+  device, and splitting to dodge a cap or a check is structuring
 - one claim only; codes stored hashed; transfers expire
 
 This is a local prototype: no real money moves, no provider is
@@ -90,14 +95,21 @@ class Store:
             encoding="utf-8")
 
     def create(self, sender_label: str, recipient_label: str,
-               amount_cad: float, payout_method: str) -> tuple[Transfer, str]:
+               amount_cad: float, payout_method: str,
+               sender_id_ref: str = "") -> tuple[Transfer, str]:
+        if not sender_id_ref.strip():
+            raise CashLinkError(
+                "sender identity verification is required on every send "
+                "— guest send means no account and no login, not no ID; "
+                "the operator verifies the sender and passes a reference")
         if amount_cad <= 0:
             raise CashLinkError("amount must be positive")
         if amount_cad > CAP_CAD:
             raise CashLinkError(
-                f"per-transfer cap is CAD {CAP_CAD:.2f} — "
-                "splitting a larger send into pieces to stay under a "
-                "threshold is structuring and is refused by design")
+                f"per-transfer cap is CAD {CAP_CAD:.2f} (product risk "
+                "limit — larger sends use the standard verified route); "
+                "splitting a send to dodge the cap or a check is "
+                "structuring and is refused by design")
         if payout_method not in PAYOUT_METHODS:
             raise CashLinkError(f"payout method must be one of {PAYOUT_METHODS}")
         now = datetime.now(timezone.utc)

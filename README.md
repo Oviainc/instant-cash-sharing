@@ -20,11 +20,16 @@ lightest lawful shape:
 - **Recipient side:** link + code only. The one ID moment happens at
   payout: ID shown once at the pickup point, or the wallet provider's
   own check. No account is ever created for the recipient.
-- **Sender side:** identification handled by the operator/provider,
-  as the law requires — outside this core.
-- **Per-transfer cap under CAD 1,000**, enforced in code. Splitting a
-  larger send into pieces to stay under a threshold is structuring;
-  the core names it and refuses amounts over the cap by design.
+- **Sender side — guest send:** no account, no password, no login
+  either. The operator verifies the sender's identity on every send
+  (a verification reference, never raw ID data) and screens both
+  parties. No-login is the product choice; identity verification is
+  the law in every corridor — see [LEGAL.md](LEGAL.md).
+- **Per-transfer cap under CAD 1,000**, enforced in code as a
+  fraud/risk product limit. Sender identity is verified at every
+  amount, so the cap is never a threshold-avoidance device; splitting
+  a send to dodge a cap or a check is structuring, and the core
+  refuses over-cap sends by design.
 - **One claim only.** Codes are stored hashed, shown once at
   creation. Transfers expire after 72 hours.
 
@@ -39,10 +44,10 @@ lightest lawful shape:
 
 ```bash
 python -m cashlink create --sender "Sender" --recipient "Receiver" \
-    --amount 250 --method cash_pickup
+    --amount 250 --method cash_pickup --sender-id-ref IDV-001
 python -m cashlink claim --id CL-XXXXXXXX --code XXXXXXXXXX \
     --payout-ref "Pickup point 4421 — ID shown"
-python -m pytest tests/ -q   # 4 passed
+python -m pytest tests/ -q   # 5 passed
 ```
 
 ## Status and the open decision

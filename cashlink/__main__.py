@@ -29,6 +29,9 @@ def main() -> int:
     c.add_argument("--amount", type=float, required=True)
     c.add_argument("--method", default="cash_pickup",
                    choices=["cash_pickup", "wallet"])
+    c.add_argument("--sender-id-ref", required=True,
+                   help="operator's sender ID-verification reference "
+                        "(guest send: no account, no login — ID verified)")
     k = sub.add_parser("claim")
     k.add_argument("--id", required=True)
     k.add_argument("--code", required=True)
@@ -42,7 +45,8 @@ def main() -> int:
     try:
         if args.cmd == "create":
             t, code = store.create(args.sender, args.recipient,
-                                   args.amount, args.method)
+                                   args.amount, args.method,
+                                   sender_id_ref=args.sender_id_ref)
             print(json.dumps({**t.public_view(), "claim_code": code,
                               "note": "send the code to the recipient — "
                                       "shown once, stored hashed"},
